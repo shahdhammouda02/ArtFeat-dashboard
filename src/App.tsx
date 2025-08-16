@@ -43,6 +43,8 @@ import Spinners from "bootstrap-components/Spinners";
 import Toasts from "bootstrap-components/Toasts";
 import Tooltips from "bootstrap-components/Tooltips";
 import Tables from "bootstrap-components/Tables";
+import Events from "pages/dashboard/pages/Events/Events";
+import Profiles from "pages/dashboard/pages/Events/Profiles";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -76,6 +78,13 @@ const App = () => {
             {
               path: "pricing",
               Component: Pricing,
+            },
+            {
+              path:"events",
+              children: [
+                {path: "", Component: Events},
+                {path: "profiles", Component: Profiles}
+              ]
             },
             {
               path: "api-demo",
