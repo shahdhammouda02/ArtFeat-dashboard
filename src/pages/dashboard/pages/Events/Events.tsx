@@ -276,8 +276,8 @@ const Events: React.FC = () => {
                     onChange={() => toggleOne(ev.id)}
                   />
                 </td>
-                <td>#{ev.id}</td>
-                <td>
+                <td className="text-center align-middle">{ev.id}</td>
+                <td className="text-center align-middle">
                   {ev.cover ? (
                     <img
                       src={ev.cover}

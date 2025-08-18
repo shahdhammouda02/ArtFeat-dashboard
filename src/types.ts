@@ -133,3 +133,11 @@ export interface EventItem {
   status: EventStatus;
   description: string;
 }
+
+export interface Artist {
+  id: number;
+  name: string;
+  picture: string;
+  description: string;
+  artworks: string[];
+};
