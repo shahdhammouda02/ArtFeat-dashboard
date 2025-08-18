@@ -119,3 +119,17 @@ export interface DashboardMenuProps {
   badge?: string;
   badgecolor?: string;
 }
+
+export type EventStatus = "Upcoming" | "Ongoing" | "Ended" | "Cancelled";
+export type EventType = "Exhibition" | "Workshop" | "Auction" | "Festival" | "Online";
+
+export interface EventItem {
+  id: number;
+  cover?: string;
+  title: string;
+  categories: string[];
+  type: EventType;
+  date: string;
+  status: EventStatus;
+  description: string;
+}

@@ -1,7 +1,7 @@
 //import node module libraries
 import { Outlet } from "react-router";
 import { Container } from "react-bootstrap";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 
 const AuthenticationLayout = () => {
   return (
@@ -9,7 +9,7 @@ const AuthenticationLayout = () => {
       <Container className="d-flex flex-column">
         <Outlet />
 
-        <Link
+        {/* <Link
           to="https://dashui.codescandy.com/free-reactjs-admin-dashboard-template.html"
           target="_blank"
           className="btn btn-dark btn-float-button m-5 fs-4"
@@ -34,7 +34,7 @@ const AuthenticationLayout = () => {
             <path d="M21 21.5v-4.5h-4.5" />
           </svg>{" "}
           Free Download
-        </Link>
+        </Link> */}
       </Container>
     </section>
   );
