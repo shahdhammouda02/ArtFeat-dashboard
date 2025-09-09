@@ -45,6 +45,7 @@ import Tooltips from "bootstrap-components/Tooltips";
 import Tables from "bootstrap-components/Tables";
 import Events from "pages/dashboard/pages/Events/Events";
 import Profiles from "pages/dashboard/pages/Events/Profiles";
+import Auctions from "pages/dashboard/pages/Auctions/Auctions";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -85,6 +86,10 @@ const App = () => {
                 {path: "", Component: Events},
                 {path: "profiles", Component: Profiles}
               ]
+            },
+            {
+              path: "auctions",
+              Component: Auctions
             },
             {
               path: "api-demo",

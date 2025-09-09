@@ -50,6 +50,7 @@ export const DashboardMenu: DashboardMenuProps[] = [
           { id: uuid(), link: "/pages/events/profiles", name: "Profiles" },
         ],
       },
+      {id: uuid(), link: "/pages/auctions", name: "Auctions" },
       { id: uuid(), link: "/pages/profile", name: "Profile" },
       { id: uuid(), link: "/pages/settings", name: "Settings" },
       { id: uuid(), link: "/pages/billing", name: "Billing" },
