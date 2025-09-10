@@ -8,7 +8,7 @@ const Auctions: React.FC = () => {
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(3); // Changed to 3 rows per page
   const nextId = useRef(1);
 
   // Add Modal
@@ -141,7 +141,7 @@ const Auctions: React.FC = () => {
       <div className="table-responsive">
         <Table striped bordered hover size="sm">
           <thead className="table-light">
-            <tr>
+            <tr className="text-center align-middle">
               <th>
                 <Form.Check type="checkbox" checked={allOnPage} onChange={toggleAllOnPage} />
               </th>
@@ -153,7 +153,7 @@ const Auctions: React.FC = () => {
               <th>Bid</th>
               <th>Bids Count</th>
               <th>Time Left</th>
-              <th className="text-center">Actions</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -161,7 +161,7 @@ const Auctions: React.FC = () => {
               <tr><td colSpan={10} className="text-center py-5">No auctions found</td></tr>
             )}
             {pageData.map((a) => (
-              <tr key={a.id} className={selected.has(a.id) ? "table-active" : ""}>
+              <tr key={a.id} className={`selected.has(a.id) ? "table-active" : "" text-center align-middle`}>
                 <td>
                   <Form.Check type="checkbox" checked={selected.has(a.id)} onChange={() => toggleOne(a.id)} />
                 </td>
@@ -171,7 +171,7 @@ const Auctions: React.FC = () => {
                     <img src={a.image} alt="" width={48} height={48} style={{ objectFit: "cover", borderRadius: 50}} />
                   ) : (
                     <div className="bg-light text-muted d-flex align-items-center justify-content-center"
-                      style={{ width: 48, height: 48, borderRadius: 6 }}>IMG</div>
+                      style={{ width: 48, height: 48, borderRadius: 50 }}>IMG</div>
                   )}
                 </td>
                 <td>{a.title}</td>
@@ -180,7 +180,7 @@ const Auctions: React.FC = () => {
                 <td>{a.bid}</td>
                 <td>{a.bidsCount}</td>
                 <td>{a.time}</td>
-                <td className="text-center">
+                <td>
                   <Button size="sm" variant="outline-primary" onClick={() => setEditing(a)}>Edit</Button>{" "}
                   <Button size="sm" variant="outline-danger" onClick={() => delOne(a.id)}>Delete</Button>
                 </td>
@@ -196,7 +196,15 @@ const Auctions: React.FC = () => {
         <Pagination>
           <Pagination.First onClick={() => setPage(1)} disabled={page === 1} />
           <Pagination.Prev onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} />
-          <Pagination.Item active>{page}</Pagination.Item>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
+            <Pagination.Item
+              key={pageNumber}
+              active={pageNumber === page}
+              onClick={() => setPage(pageNumber)}
+            >
+              {pageNumber}
+            </Pagination.Item>
+          ))}
           <Pagination.Next onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} />
           <Pagination.Last onClick={() => setPage(totalPages)} disabled={page === totalPages} />
         </Pagination>
