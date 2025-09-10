@@ -1,18 +1,28 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { Table, Button, Modal, Form, Badge, Pagination } from "react-bootstrap";
-import type { Auction } from "types";
-import { auctions as MOCK } from "data/auctions/auctionsData";
+import { Button, Pagination, Form } from "react-bootstrap";
+import { Auction } from "types";
+import { auctions as MOCK_AUCTIONS } from "data/auctions/auctionsData";
+import AuctionTable from "./AuctionTable";
+import AuctionForm from "./AuctionForm";
+import BidHistoryModal from "./BidHistoryModal";
+import ShippingModal from "./ShippingModal";
 
 const Auctions: React.FC = () => {
   const [rows, setRows] = useState<Auction[]>([]);
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(3); // Changed to 3 rows per page
+  const [pageSize] = useState(3);
   const nextId = useRef(1);
 
-  // Add Modal
+  // Modals
   const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<Auction | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [selectedAuction, setSelectedAuction] = useState<Auction | null>(null);
+  const [showShipping, setShowShipping] = useState(false);
+
+  // New auction form data
   const [newAuction, setNewAuction] = useState<Omit<Auction, "id">>({
     type: "Digital",
     title: "",
@@ -23,12 +33,9 @@ const Auctions: React.FC = () => {
     image: "",
   });
 
-  // Edit Modal
-  const [editing, setEditing] = useState<Auction | null>(null);
-
   useEffect(() => {
     // Load mock data
-    const withIds: Auction[] = MOCK.map((m, idx) => ({ ...m, id: idx + 1 }));
+    const withIds: Auction[] = MOCK_AUCTIONS.map((m, idx) => ({ ...m, id: idx + 1 }));
     nextId.current = withIds.length + 1;
     setRows(withIds);
   }, []);
@@ -76,10 +83,11 @@ const Auctions: React.FC = () => {
   // Search + filter
   const filtered = useMemo(() => {
     const text = q.trim().toLowerCase();
-    return rows.filter((r) =>
-      !text ||
-      r.title.toLowerCase().includes(text) ||
-      r.author.toLowerCase().includes(text)
+    return rows.filter(
+      (r) =>
+        !text ||
+        r.title.toLowerCase().includes(text) ||
+        r.author.toLowerCase().includes(text)
     );
   }, [rows, q]);
 
@@ -95,10 +103,32 @@ const Auctions: React.FC = () => {
     else pageData.forEach((r) => next.add(r.id));
     setSelected(next);
   };
+
   const toggleOne = (id: number) => {
     const next = new Set(selected);
     next.has(id) ? next.delete(id) : next.add(id);
     setSelected(next);
+  };
+
+  // View bid history for an auction
+  const viewHistory = (auction: Auction) => {
+    setSelectedAuction(auction);
+    setShowHistory(true);
+  };
+
+  // Check shipping for an auction
+  const checkShipping = (auction: Auction) => {
+    setSelectedAuction(auction);
+    setShowShipping(true);
+  };
+
+  // Handle form field changes
+  const handleFormChange = (field: keyof Auction, value: string | number) => {
+    if (editing) {
+      setEditing({ ...editing, [field]: value });
+    } else {
+      setNewAuction({ ...newAuction, [field]: value });
+    }
   };
 
   return (
@@ -138,64 +168,29 @@ const Auctions: React.FC = () => {
       </div>
 
       {/* Table */}
-      <div className="table-responsive">
-        <Table striped bordered hover size="sm">
-          <thead className="table-light">
-            <tr className="text-center align-middle">
-              <th>
-                <Form.Check type="checkbox" checked={allOnPage} onChange={toggleAllOnPage} />
-              </th>
-              <th>ID</th>
-              <th>Image</th>
-              <th>Title</th>
-              <th>Author</th>
-              <th>Type</th>
-              <th>Bid</th>
-              <th>Bids Count</th>
-              <th>Time Left</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pageData.length === 0 && (
-              <tr><td colSpan={10} className="text-center py-5">No auctions found</td></tr>
-            )}
-            {pageData.map((a) => (
-              <tr key={a.id} className={`selected.has(a.id) ? "table-active" : "" text-center align-middle`}>
-                <td>
-                  <Form.Check type="checkbox" checked={selected.has(a.id)} onChange={() => toggleOne(a.id)} />
-                </td>
-                <td>{a.id}</td>
-                <td>
-                  {a.image ? (
-                    <img src={a.image} alt="" width={48} height={48} style={{ objectFit: "cover", borderRadius: 50}} />
-                  ) : (
-                    <div className="bg-light text-muted d-flex align-items-center justify-content-center"
-                      style={{ width: 48, height: 48, borderRadius: 50 }}>IMG</div>
-                  )}
-                </td>
-                <td>{a.title}</td>
-                <td>{a.author}</td>
-                <td><Badge bg="info">{a.type}</Badge></td>
-                <td>{a.bid}</td>
-                <td>{a.bidsCount}</td>
-                <td>{a.time}</td>
-                <td>
-                  <Button size="sm" variant="outline-primary" onClick={() => setEditing(a)}>Edit</Button>{" "}
-                  <Button size="sm" variant="outline-danger" onClick={() => delOne(a.id)}>Delete</Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </div>
+      <AuctionTable
+        auctions={pageData}
+        selected={selected}
+        toggleOne={toggleOne}
+        toggleAllOnPage={toggleAllOnPage}
+        allOnPage={allOnPage}
+        setEditing={setEditing}
+        viewHistory={viewHistory}
+        checkShipping={checkShipping}
+        delOne={delOne}
+      />
 
       {/* Pagination */}
       <div className="d-flex justify-content-between align-items-center mt-3">
-        <div>Total Auctions: <strong>{filtered.length}</strong></div>
+        <div>
+          Total Auctions: <strong>{filtered.length}</strong>
+        </div>
         <Pagination>
           <Pagination.First onClick={() => setPage(1)} disabled={page === 1} />
-          <Pagination.Prev onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} />
+          <Pagination.Prev
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+          />
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
             <Pagination.Item
               key={pageNumber}
@@ -205,120 +200,50 @@ const Auctions: React.FC = () => {
               {pageNumber}
             </Pagination.Item>
           ))}
-          <Pagination.Next onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} />
-          <Pagination.Last onClick={() => setPage(totalPages)} disabled={page === totalPages} />
+          <Pagination.Next
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+          />
+          <Pagination.Last
+            onClick={() => setPage(totalPages)}
+            disabled={page === totalPages}
+          />
         </Pagination>
       </div>
 
       {/* Add Auction Modal */}
-      <Modal show={showForm} onHide={() => setShowForm(false)} size="lg">
-        <Modal.Header closeButton><Modal.Title>Add New Auction</Modal.Title></Modal.Header>
-        <Form onSubmit={addAuction}>
-          <Modal.Body className="row g-3">
-            <div className="col-md-6">
-              <Form.Label>Title</Form.Label>
-              <Form.Control required value={newAuction.title}
-                onChange={(e) => setNewAuction({ ...newAuction, title: e.target.value })} />
-            </div>
-            <div className="col-md-6">
-              <Form.Label>Author</Form.Label>
-              <Form.Control required value={newAuction.author}
-                onChange={(e) => setNewAuction({ ...newAuction, author: e.target.value })} />
-            </div>
-            <div className="col-md-4">
-              <Form.Label>Type</Form.Label>
-              <Form.Select value={newAuction.type}
-                onChange={(e) => setNewAuction({ ...newAuction, type: e.target.value as "Digital" | "Physical" })}>
-                <option>Digital</option>
-                <option>Physical</option>
-              </Form.Select>
-            </div>
-            <div className="col-md-4">
-              <Form.Label>Bid</Form.Label>
-              <Form.Control required value={newAuction.bid}
-                onChange={(e) => setNewAuction({ ...newAuction, bid: e.target.value })} />
-            </div>
-            <div className="col-md-4">
-              <Form.Label>Bids Count</Form.Label>
-              <Form.Control type="number" value={newAuction.bidsCount}
-                onChange={(e) => setNewAuction({ ...newAuction, bidsCount: Number(e.target.value) })} />
-            </div>
-            <div className="col-md-6">
-              <Form.Label>Time Left</Form.Label>
-              <Form.Control value={newAuction.time}
-                onChange={(e) => setNewAuction({ ...newAuction, time: e.target.value })} />
-            </div>
-            <div className="col-md-6">
-              <Form.Label>Image</Form.Label>
-              <Form.Control type="file" accept="image/*"
-                onChange={(e) => {
-                  const file = (e.target as HTMLInputElement).files?.[0];
-                  if (file) setNewAuction({ ...newAuction, image: URL.createObjectURL(file) });
-                }} />
-            </div>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowForm(false)}>Cancel</Button>
-            <Button type="submit" variant="primary">Save</Button>
-          </Modal.Footer>
-        </Form>
-      </Modal>
+      <AuctionForm
+        show={showForm}
+        onHide={() => setShowForm(false)}
+        auction={newAuction}
+        onSubmit={addAuction}
+        onChange={handleFormChange}
+        isEditing={false}
+      />
 
       {/* Edit Auction Modal */}
-      <Modal show={!!editing} onHide={() => setEditing(null)} size="lg">
-        <Modal.Header closeButton><Modal.Title>Edit Auction</Modal.Title></Modal.Header>
-        {editing && (
-          <Form onSubmit={(e) => { e.preventDefault(); saveEdit(); }}>
-            <Modal.Body className="row g-3">
-              <div className="col-md-6">
-                <Form.Label>Title</Form.Label>
-                <Form.Control required value={editing.title}
-                  onChange={(e) => setEditing({ ...editing, title: e.target.value })} />
-              </div>
-              <div className="col-md-6">
-                <Form.Label>Author</Form.Label>
-                <Form.Control required value={editing.author}
-                  onChange={(e) => setEditing({ ...editing, author: e.target.value })} />
-              </div>
-              <div className="col-md-4">
-                <Form.Label>Type</Form.Label>
-                <Form.Select value={editing.type}
-                  onChange={(e) => setEditing({ ...editing, type: e.target.value as "Digital" | "Physical" })}>
-                  <option>Digital</option>
-                  <option>Physical</option>
-                </Form.Select>
-              </div>
-              <div className="col-md-4">
-                <Form.Label>Bid</Form.Label>
-                <Form.Control required value={editing.bid}
-                  onChange={(e) => setEditing({ ...editing, bid: e.target.value })} />
-              </div>
-              <div className="col-md-4">
-                <Form.Label>Bids Count</Form.Label>
-                <Form.Control type="number" value={editing.bidsCount}
-                  onChange={(e) => setEditing({ ...editing, bidsCount: Number(e.target.value) })} />
-              </div>
-              <div className="col-md-6">
-                <Form.Label>Time Left</Form.Label>
-                <Form.Control value={editing.time}
-                  onChange={(e) => setEditing({ ...editing, time: e.target.value })} />
-              </div>
-              <div className="col-md-6">
-                <Form.Label>Image</Form.Label>
-                <Form.Control type="file" accept="image/*"
-                  onChange={(e) => {
-                    const file = (e.target as HTMLInputElement).files?.[0];
-                    if (file) setEditing({ ...editing, image: URL.createObjectURL(file) });
-                  }} />
-              </div>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={() => setEditing(null)}>Cancel</Button>
-              <Button type="submit" variant="primary">Save Changes</Button>
-            </Modal.Footer>
-          </Form>
-        )}
-      </Modal>
+      <AuctionForm
+        show={!!editing}
+        onHide={() => setEditing(null)}
+        auction={editing}
+        onSubmit={saveEdit}
+        onChange={handleFormChange}
+        isEditing={true}
+      />
+
+      {/* View History Modal */}
+      <BidHistoryModal
+        show={showHistory}
+        onHide={() => setShowHistory(false)}
+        auction={selectedAuction}
+      />
+
+      {/* Shipping Modal */}
+      <ShippingModal
+        show={showShipping}
+        onHide={() => setShowShipping(false)}
+        auction={selectedAuction}
+      />
     </div>
   );
 };

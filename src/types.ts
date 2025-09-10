@@ -152,3 +152,9 @@ export type Auction = {
   bidsCount: number;
   image?: string;
 };
+
+export interface BidEntry {
+  bidder: string;
+  amount: string;
+  date: string;
+}
