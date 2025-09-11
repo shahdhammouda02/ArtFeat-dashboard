@@ -45,4 +45,14 @@ export const auctions: Auction[] = [
     bidsCount: 15,
     image: image4,
   },
+  {
+    id: 5,
+    type: "Digital",
+    title: "Botanical Illustration",
+    author: "John Alex",
+    time: "10h 14m 50s",
+    bid: "$3,300",
+    bidsCount: 12,
+    image: image1,
+  },
 ];
