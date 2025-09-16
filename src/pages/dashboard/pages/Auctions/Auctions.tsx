@@ -14,6 +14,7 @@ import AuctionForm from "./AuctionForm";
 import BidHistoryModal from "./BidHistoryModal";
 import ShippingModal from "./ShippingModal";
 import { FaFilter, FaSearch } from "react-icons/fa";
+import { useNavigate } from "react-router-dom"; // <-- NEW
 
 const Auctions: React.FC = () => {
   const [rows, setRows] = useState<Auction[]>([]);
@@ -22,6 +23,7 @@ const Auctions: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(3);
   const nextId = useRef(1);
+  const navigate = useNavigate(); // <-- NEW
 
   // Column visibility toggles
   const [columnVisibility, setColumnVisibility] = useState({
@@ -389,6 +391,18 @@ const Auctions: React.FC = () => {
                   <td className="text-center">
                     <div className="d-flex flex-column gap-1">
                       <div className="d-flex gap-1 justify-content-center flex-wrap">
+                        {/* NEW: Details button */}
+                        <Button
+                          size="sm"
+                          variant="outline-success"
+                        onClick={() =>
+  navigate(`/pages/auctions/${a.id}`, { state: { auction: a } })
+}
+
+                        >
+                          Details
+                        </Button>
+
                         <Button
                           size="sm"
                           variant="outline-primary"

@@ -1,7 +1,7 @@
-//import node module libraries
+// import node module libraries
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-//import routes files
+// import routes files
 import AuthenticationLayout from "layouts/AuthenticationLayout";
 import RootLayout from "layouts/RootLayout";
 import SignIn from "./pages/auth/SignIn";
@@ -43,9 +43,12 @@ import Spinners from "bootstrap-components/Spinners";
 import Toasts from "bootstrap-components/Toasts";
 import Tooltips from "bootstrap-components/Tooltips";
 import Tables from "bootstrap-components/Tables";
+
+// pages
 import Events from "pages/dashboard/pages/Events/Events";
 import Profiles from "pages/dashboard/pages/Events/Profiles";
 import Auctions from "pages/dashboard/pages/Auctions/Auctions";
+import AuctionDetails from "pages/dashboard/pages/Auctions/AuctionDetails"; // <-- NEW
 
 const App = () => {
   const router = createBrowserRouter([
@@ -64,54 +67,32 @@ const App = () => {
           id: "pages",
           path: "/pages",
           children: [
+            { path: "profile", Component: Profile },
+            { path: "settings", Component: Settings },
+            { path: "billing", Component: Billing },
+            { path: "pricing", Component: Pricing },
             {
-              path: "profile",
-              Component: Profile,
-            },
-            {
-              path: "settings",
-              Component: Settings,
-            },
-            {
-              path: "billing",
-              Component: Billing,
-            },
-            {
-              path: "pricing",
-              Component: Pricing,
-            },
-            {
-              path:"events",
+              path: "events",
               children: [
-                {path: "", Component: Events},
-                {path: "profiles", Component: Profiles}
-              ]
+                { path: "", Component: Events },
+                { path: "profiles", Component: Profiles },
+              ],
             },
+            // ===== Auctions group =====
             {
               path: "auctions",
-              Component: Auctions
+              children: [
+                { path: "", Component: Auctions },           // /pages/auctions
+                { path: ":id", Component: AuctionDetails },   // /pages/auctions/:id  <-- NEW
+              ],
             },
-            {
-              path: "api-demo",
-              Component: ApiDemo,
-            },
+            // ==========================
+            { path: "api-demo", Component: ApiDemo },
           ],
         },
-        {
-          id: "documentation",
-          path: "/documentation",
-          Component: Documentation,
-        },
-        {
-          id: "changelog",
-          path: "/changelog",
-          Component: ChangeLog,
-        },
-        {
-          id: "layout-vertical",
-          path: "/layout-vertical",
-          Component: LayoutVertical,
-        },
+        { id: "documentation", path: "/documentation", Component: Documentation },
+        { id: "changelog", path: "/changelog", Component: ChangeLog },
+        { id: "layout-vertical", path: "/layout-vertical", Component: LayoutVertical },
         {
           id: "components",
           path: "/components",
@@ -149,24 +130,13 @@ const App = () => {
       path: "/auth",
       Component: AuthenticationLayout,
       children: [
-        {
-          id: "sign-in",
-          path: "sign-in",
-          Component: SignIn,
-        },
-        {
-          id: "sign-up",
-          path: "sign-up",
-          Component: SignUp,
-        },
-        {
-          id: "forget-password",
-          path: "forget-password",
-          Component: ForgetPassword,
-        },
+        { id: "sign-in", path: "sign-in", Component: SignIn },
+        { id: "sign-up", path: "sign-up", Component: SignUp },
+        { id: "forget-password", path: "forget-password", Component: ForgetPassword },
       ],
     },
   ]);
+
   return <RouterProvider router={router} />;
 };
 
