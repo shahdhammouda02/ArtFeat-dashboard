@@ -49,6 +49,10 @@ import Events from "pages/dashboard/pages/Events/Events";
 import Profiles from "pages/dashboard/pages/Events/Profiles";
 import Auctions from "pages/dashboard/pages/Auctions/Auctions";
 import AuctionDetails from "pages/dashboard/pages/Auctions/AuctionDetails"; // <-- NEW
+import DonationFormSettings from "pages/dashboard/pages/Support Artists/DonationFormSettings";
+import SuccessStories from "pages/dashboard/pages/Support Artists/SuccessStories";
+import HeroSection from "pages/dashboard/pages/Support Artists/HeroSection";
+import DonationManagement from "pages/dashboard/pages/Support Artists/DonationManagement";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -84,6 +88,15 @@ const App = () => {
               children: [
                 { path: "", Component: Auctions },           // /pages/auctions
                 { path: ":id", Component: AuctionDetails },   // /pages/auctions/:id  <-- NEW
+              ],
+            },
+            {
+              path: "support-artists",
+              children: [
+                { path: "donation-management", Component: DonationManagement },
+                { path: "hero-section", Component: HeroSection },
+                { path: "success-stories", Component: SuccessStories },
+                { path: "donation-form-settings", Component: DonationFormSettings },
               ],
             },
             // ==========================
