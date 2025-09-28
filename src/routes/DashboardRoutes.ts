@@ -140,7 +140,19 @@ export const DashboardMenu: DashboardMenuProps[] = [
     id: uuid(),
     title: "Documentation",
     grouptitle: true,
-  },
+  },{
+  id: uuid(),
+  title: "Support Artists",
+  icon: "heart",
+  link: "#",
+  children: [
+    { id: uuid(), link: "/pages/support-artists/donation-management", name: "Donation Management" },
+    { id: uuid(), link: "/pages/support-artists/hero-section", name: "Hero Section" },
+    { id: uuid(), link: "/pages/support-artists/success-stories", name: "Success Stories" },
+    { id: uuid(), link: "/pages/support-artists/donation-form-settings", name: "Donation Form Settings" },
+    { id: uuid(), link: "/pages/support-artists/support-purposes", name: "Support Purposes" },
+  ],
+},
   {
     id: uuid(),
     title: "Docs",
