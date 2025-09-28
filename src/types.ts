@@ -10,7 +10,7 @@ export interface ChildrenItemProps {
   name?: string;
   link: string;
   children?: ChildrenItemProps[];
-  icon?: string | React.ReactNode;
+  icon?: string;
   badge?: string;
   badgecolor?: string;
 }
@@ -21,7 +21,7 @@ export interface DashboardMenuProps {
   link?: string;
   grouptitle?: boolean;
   children?: ChildrenItemProps[];
-  icon?: string | React.ReactNode;
+  icon?: string;
   badge?: string;
   badgecolor?: string;
 }
@@ -104,7 +104,7 @@ export interface ChildrenItemProps {
   name?: string;
   link: string;
   children?: ChildrenItemProps[];
-  icon?: string | React.ReactNode;
+  icon?: string;
   badge?: string;
   badgecolor?: string;
 }
@@ -115,7 +115,7 @@ export interface DashboardMenuProps {
   link?: string;
   grouptitle?: boolean;
   children?: ChildrenItemProps[];
-  icon?: string | React.ReactNode;
+  icon?: string;
   badge?: string;
   badgecolor?: string;
 }

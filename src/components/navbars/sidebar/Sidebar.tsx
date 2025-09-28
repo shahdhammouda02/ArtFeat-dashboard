@@ -34,7 +34,8 @@ const Sidebar: React.FC<SidebarProps> = ({ showMenu, toggleMenu }) => {
         }`}
         onClick={() => (isMobile ? toggleMenu() : showMenu)}
       >
-        {item.name}
+        {item.icon && <i className={`nav-icon fe fe-${item.icon} me-2`}></i>}
+        {item.name || item.title}
         {item.badge && (
           <Badge className="ms-1" bg={item.badgecolor || "primary"}>
             {item.badge}
@@ -115,7 +116,7 @@ const Sidebar: React.FC<SidebarProps> = ({ showMenu, toggleMenu }) => {
                                   // defaultActiveKey="0"
                                   className="navbar-nav flex-column"
                                 >
-                                  <CustomToggleLevelTwo eventKey={childKey}>
+                                  <CustomToggleLevelTwo eventKey={childKey} icon={menuLevel1Item.icon}>
                                     {menuLevel1Item.title}
                                     {menuLevel1Item.badge ? (
                                       <Badge

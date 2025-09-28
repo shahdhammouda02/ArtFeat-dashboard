@@ -20,16 +20,18 @@ export const DashboardMenu: DashboardMenuProps[] = [
       {
         id: uuid(),
         title: "Events",
+        icon: "calendar",
         link: "#",
         children: [
           { id: uuid(), link: "/pages/events", name: "Events" },
           { id: uuid(), link: "/pages/events/profiles", name: "Profiles" },
         ],
       },
-      {id: uuid(), link: "/pages/auctions", name: "Auctions" },
+      {id: uuid(), icon: "shopping-bag", link: "/pages/auctions", name: "Auctions" },
       {
         id: uuid(),
         title: "Support Artists",
+        icon: "heart",
         link: "#",
         children: [
           { id: uuid(), link: "/pages/support-artists/donation-management", name: "Donation Management" },

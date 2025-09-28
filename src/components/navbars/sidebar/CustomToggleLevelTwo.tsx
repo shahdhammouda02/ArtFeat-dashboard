@@ -6,11 +6,13 @@ import { Link } from "react-router-dom";
 interface CustomToggleProps {
   children: React.ReactNode;
   eventKey: any;
+  icon?: string;
 }
 
 export const CustomToggleLevelTwo: React.FC<CustomToggleProps> = ({
   children,
   eventKey,
+  icon,
 }) => {
   const { activeEventKey } = useContext(AccordionContext);
   const decoratedOnClick = useAccordionButton(eventKey, () =>
@@ -27,6 +29,7 @@ export const CustomToggleLevelTwo: React.FC<CustomToggleProps> = ({
       aria-expanded={isCurrentEventKey ? true : false}
       aria-controls="navDashboard"
     >
+      {icon && <i className={`nav-icon fe fe-${icon} me-2`}></i>}
       {children}
     </Link>
   );
