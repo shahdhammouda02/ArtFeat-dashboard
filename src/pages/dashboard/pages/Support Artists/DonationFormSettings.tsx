@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Card, Form, Button, Row, Col, Badge, Container } from "react-bootstrap";
 
 const DonationFormSettings = () => {
