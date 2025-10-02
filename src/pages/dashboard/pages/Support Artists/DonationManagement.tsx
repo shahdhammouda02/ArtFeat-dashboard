@@ -1,13 +1,19 @@
-import { Card, Row, Col, Table, Button, Form } from "react-bootstrap";
+import { Card, Row, Col, Table, Form, Modal, Button } from "react-bootstrap";
 import { useState } from "react";
-import { Edit, Trash2, Filter } from "lucide-react";
+import {
+  Edit,
+  Trash2,
+  DollarSign,
+  Users,
+  TrendingUp,
+  Filter,
+} from "lucide-react";
 
 const DonationManagement = () => {
   const [search, setSearch] = useState("");
   const [activePage, setActivePage] = useState(1);
-
-  // Sample data
-  const donors = [
+  const [filterMethod, setFilterMethod] = useState<string | null>(null);
+  const [donors, setDonors] = useState([
     {
       name: "Alice Smith",
       amount: 500,
@@ -39,12 +45,91 @@ const DonationManagement = () => {
       date: "2024-07-23",
       method: "Credit Card",
     },
-  ];
+  ]);
+
+  const [chartPeriod, setChartPeriod] = useState("Last Month");
+  const [chartYear, setChartYear] = useState("2024");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingDonor, setEditingDonor] = useState<any>(null);
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    amount: 0,
+    date: "",
+    method: "",
+  });
 
   const itemsPerPage = 6;
-  const totalPages = Math.ceil(donors.length / itemsPerPage);
+
+  // Filter + Search
+  const filteredDonors = donors.filter((donor) => {
+    const matchesSearch = donor.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
+    const matchesFilter = filterMethod ? donor.method === filterMethod : true;
+    return matchesSearch && matchesFilter;
+  });
+
+  const totalPages = Math.ceil(filteredDonors.length / itemsPerPage);
   const startIndex = (activePage - 1) * itemsPerPage;
-  const currentDonors = donors.slice(startIndex, startIndex + itemsPerPage);
+  const currentDonors = filteredDonors.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  const findOriginalIndex = (donor: (typeof donors)[0]) =>
+    donors.findIndex(
+      (d) =>
+        d.name === donor.name &&
+        d.amount === donor.amount &&
+        d.date === donor.date &&
+        d.method === donor.method
+    );
+
+  // Handle Edit Dialog Open
+  const handleEdit = (index: number) => {
+    const donor = currentDonors[index];
+    const originalIndex = findOriginalIndex(donor);
+
+    setEditingDonor({ ...donor, originalIndex });
+    setEditFormData({ ...donor });
+    setShowEditModal(true);
+  };
+
+  // Handle Edit Save
+  const handleSaveEdit = () => {
+    if (editingDonor) {
+      const updated = donors.map((d, i) =>
+        i === editingDonor.originalIndex
+          ? { ...editFormData, amount: Number(editFormData.amount) }
+          : d
+      );
+      setDonors(updated);
+      setShowEditModal(false);
+      setEditingDonor(null);
+    }
+  };
+
+  // Handle Delete
+  const handleDelete = (index: number) => {
+    const donor = currentDonors[index];
+    const originalIndex = findOriginalIndex(donor);
+
+    if (window.confirm("Are you sure you want to delete this donor?")) {
+      setDonors(donors.filter((_, i) => i !== originalIndex));
+    }
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setEditFormData((prev) => ({
+      ...prev,
+      [name]: name === "amount" ? Number(value) : value,
+    }));
+  };
 
   return (
     <div
@@ -53,7 +138,7 @@ const DonationManagement = () => {
     >
       {/* Header */}
       <div className="mb-4">
-        <h2 className="fw-bold" style={{ color: "#38bdf8" }}>
+        <h2 className="fw-bold" style={{ color: "#2196f3" }}>
           Donations Overview
         </h2>
       </div>
@@ -79,11 +164,9 @@ const DonationManagement = () => {
                   style={{
                     width: "32px",
                     height: "32px",
-                    backgroundColor: "#e0f7ff",
-                    borderRadius: "6px",
                   }}
                 >
-                  <span style={{ color: "#38bdf8", fontSize: "16px" }}>💰</span>
+                  <DollarSign size={16} color="#38bdf8" />
                 </div>
               </div>
             </Card.Body>
@@ -108,11 +191,9 @@ const DonationManagement = () => {
                   style={{
                     width: "32px",
                     height: "32px",
-                    backgroundColor: "#e0f7ff",
-                    borderRadius: "6px",
                   }}
                 >
-                  <span style={{ color: "#38bdf8", fontSize: "16px" }}>👥</span>
+                  <Users size={16} color="#38bdf8" />
                 </div>
               </div>
             </Card.Body>
@@ -137,11 +218,9 @@ const DonationManagement = () => {
                   style={{
                     width: "32px",
                     height: "32px",
-                    backgroundColor: "#e0f7ff",
-                    borderRadius: "6px",
                   }}
                 >
-                  <span style={{ color: "#38bdf8", fontSize: "16px" }}>📊</span>
+                  <TrendingUp size={16} color="#38bdf8" />
                 </div>
               </div>
             </Card.Body>
@@ -165,7 +244,10 @@ const DonationManagement = () => {
                       type="text"
                       placeholder="Search donors..."
                       value={search}
-                      onChange={(e) => setSearch(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setSearch(e.target.value);
+                        setActivePage(1);
+                      }}
                       style={{
                         backgroundColor: "#f1f5f9",
                         border: "1px solid #e2e8f0",
@@ -174,18 +256,55 @@ const DonationManagement = () => {
                     />
                   </Col>
                   <Col md={4}>
-                    <Button
-                      variant="outline-secondary"
-                      className="w-100 d-flex align-items-center justify-content-center gap-2"
-                      style={{
-                        backgroundColor: "#f1f5f9",
-                        border: "1px solid #e2e8f0",
-                        color: "#6b7280",
-                        borderRadius: "6px",
-                      }}
+                    <div
+                      style={{ position: "relative", display: "inline-block" }}
                     >
-                      <Filter size={16} /> Filter
-                    </Button>
+                      {/* Lucide Filter icon overlay (only show when nothing selected) */}
+                      {!filterMethod && (
+                        <Filter
+                          size={16}
+                          style={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "10px",
+                            transform: "translateY(-50%)",
+                            pointerEvents: "none",
+                            color: "#64748b",
+                          }}
+                        />
+                      )}
+
+                      <Form.Select
+                        value={filterMethod || ""}
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                          const val = e.target.value;
+                          if (val === "reset") {
+                            setFilterMethod(null); // reset filter
+                          } else {
+                            setFilterMethod(val || null);
+                          }
+                        }}
+                        style={{
+                          backgroundColor: "#f1f5f9",
+                          border: "1px solid #e2e8f0",
+                          borderRadius: "6px",
+                          paddingLeft: filterMethod ? "12px" : "32px",
+                        }}
+                      >
+                        {/* Placeholder (only shows when nothing is selected) */}
+                        <option value="" hidden>
+                          Filter
+                        </option>
+
+                        {/* Reset option */}
+                        <option value="reset">Reset Filter</option>
+
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="PayPal">PayPal</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Debit Card">Debit Card</option>
+                      </Form.Select>
+                    </div>
                   </Col>
                 </Row>
               </div>
@@ -231,6 +350,7 @@ const DonationManagement = () => {
                                 border: "none",
                                 color: "#6b7280",
                               }}
+                              onClick={() => handleEdit(i)}
                             >
                               <Edit size={14} />
                             </button>
@@ -241,6 +361,7 @@ const DonationManagement = () => {
                                 border: "none",
                                 color: "#ef4444",
                               }}
+                              onClick={() => handleDelete(i)}
                             >
                               <Trash2 size={14} />
                             </button>
@@ -325,6 +446,10 @@ const DonationManagement = () => {
                     <h5 className="fw-bold mb-0 text-dark">Statistics</h5>
                     <Form.Select
                       size="sm"
+                      value={chartPeriod}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                        setChartPeriod(e.target.value)
+                      }
                       style={{
                         width: "auto",
                         backgroundColor: "#f1f5f9",
@@ -416,6 +541,10 @@ const DonationManagement = () => {
                     <h5 className="fw-bold mb-0 text-dark">Donations</h5>
                     <Form.Select
                       size="sm"
+                      value={chartYear}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                        setChartYear(e.target.value)
+                      }
                       style={{
                         width: "auto",
                         backgroundColor: "#f1f5f9",
@@ -429,110 +558,137 @@ const DonationManagement = () => {
                   </div>
                   <div style={{ height: "160px", position: "relative" }}>
                     <svg width="100%" height="160" viewBox="0 0 300 160">
-                      {/* Background bars */}
                       <rect
-                        x="20"
-                        y="20"
-                        width="260"
-                        height="20"
-                        fill="#f1f5f9"
-                        rx="4"
-                      />
-                      <rect
-                        x="20"
-                        y="55"
-                        width="260"
-                        height="20"
-                        fill="#f1f5f9"
-                        rx="4"
-                      />
-                      <rect
-                        x="20"
-                        y="90"
-                        width="260"
-                        height="20"
-                        fill="#f1f5f9"
-                        rx="4"
-                      />
-                      <rect
-                        x="20"
-                        y="125"
-                        width="260"
-                        height="20"
-                        fill="#f1f5f9"
-                        rx="4"
-                      />
-
-                      {/* Data bars (horizontal) */}
-                      <rect
-                        x="20"
-                        y="20"
-                        width="180"
-                        height="20"
-                        fill="#2196f3"
-                        rx="4"
-                      />
-                      <rect
-                        x="20"
-                        y="55"
+                        x="40"
+                        y="30"
                         width="220"
-                        height="20"
-                        fill="#2196f3"
-                        rx="4"
+                        height="12"
+                        fill="#f8fafc"
+                        rx="2"
                       />
                       <rect
-                        x="20"
-                        y="90"
-                        width="140"
-                        height="20"
-                        fill="#2196f3"
-                        rx="4"
+                        x="40"
+                        y="52"
+                        width="220"
+                        height="12"
+                        fill="#f8fafc"
+                        rx="2"
                       />
                       <rect
-                        x="20"
-                        y="125"
-                        width="200"
-                        height="20"
-                        fill="#2196f3"
-                        rx="4"
+                        x="40"
+                        y="74"
+                        width="220"
+                        height="12"
+                        fill="#f8fafc"
+                        rx="2"
+                      />
+                      <rect
+                        x="40"
+                        y="96"
+                        width="220"
+                        height="12"
+                        fill="#f8fafc"
+                        rx="2"
+                      />
+                      <rect
+                        x="40"
+                        y="118"
+                        width="220"
+                        height="12"
+                        fill="#f8fafc"
+                        rx="2"
                       />
 
-                      {/* Labels */}
+                      <rect
+                        x="40"
+                        y="30"
+                        width="180"
+                        height="12"
+                        fill="#2196f3"
+                        rx="2"
+                      />
+                      <rect
+                        x="40"
+                        y="52"
+                        width="140"
+                        height="12"
+                        fill="#2196f3"
+                        rx="2"
+                      />
+                      <rect
+                        x="40"
+                        y="74"
+                        width="200"
+                        height="12"
+                        fill="#2196f3"
+                        rx="2"
+                      />
+                      <rect
+                        x="40"
+                        y="96"
+                        width="160"
+                        height="12"
+                        fill="#2196f3"
+                        rx="2"
+                      />
+                      <rect
+                        x="40"
+                        y="118"
+                        width="120"
+                        height="12"
+                        fill="#2196f3"
+                        rx="2"
+                      />
+
                       <text
-                        x="290"
-                        y="35"
+                        x="25"
+                        y="38"
                         textAnchor="end"
-                        fontSize="12"
+                        fontSize="11"
                         fill="#6b7280"
+                        fontWeight="500"
                       >
                         Jan
                       </text>
                       <text
-                        x="290"
-                        y="70"
+                        x="25"
+                        y="60"
                         textAnchor="end"
-                        fontSize="12"
+                        fontSize="11"
                         fill="#6b7280"
+                        fontWeight="500"
                       >
                         Feb
                       </text>
                       <text
-                        x="290"
-                        y="105"
+                        x="25"
+                        y="82"
                         textAnchor="end"
-                        fontSize="12"
+                        fontSize="11"
                         fill="#6b7280"
+                        fontWeight="500"
                       >
                         Mar
                       </text>
                       <text
-                        x="290"
-                        y="140"
+                        x="25"
+                        y="104"
                         textAnchor="end"
-                        fontSize="12"
+                        fontSize="11"
                         fill="#6b7280"
+                        fontWeight="500"
                       >
                         Apr
+                      </text>
+                      <text
+                        x="25"
+                        y="126"
+                        textAnchor="end"
+                        fontSize="11"
+                        fill="#6b7280"
+                        fontWeight="500"
+                      >
+                        May
                       </text>
                     </svg>
                   </div>
@@ -553,6 +709,58 @@ const DonationManagement = () => {
           </Row>
         </Col>
       </Row>
+
+      {/* Edit Donor Modal */}
+      <Modal
+        show={showEditModal}
+        onHide={() => setShowEditModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Donor Information</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            {[
+              { label: "Donor Name", name: "name", type: "text" },
+              { label: "Donation Amount", name: "amount", type: "number" },
+              { label: "Date", name: "date", type: "date" },
+            ].map((field) => (
+              <Form.Group className="mb-3" key={field.name}>
+                <Form.Label>{field.label}</Form.Label>
+                <Form.Control
+                  type={field.type}
+                  name={field.name}
+                  value={(editFormData as any)[field.name]}
+                  onChange={handleInputChange}
+                />
+              </Form.Group>
+            ))}
+
+            <Form.Group className="mb-3">
+              <Form.Label>Payment Method</Form.Label>
+              <Form.Select
+                name="method"
+                value={editFormData.method}
+                onChange={handleInputChange}
+              >
+                <option value="Credit Card">Credit Card</option>
+                <option value="PayPal">PayPal</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Debit Card">Debit Card</option>
+              </Form.Select>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleSaveEdit}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
