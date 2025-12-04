@@ -1,58 +1,46 @@
 // import node module libraries
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { lazy, Suspense } from "react";
 
-// import routes files
+// import layouts
 import AuthenticationLayout from "layouts/AuthenticationLayout";
 import RootLayout from "layouts/RootLayout";
+
+// auth pages
 import SignIn from "./pages/auth/SignIn";
 import ForgetPassword from "pages/auth/ForgetPassword";
-import SignUp from "./pages/auth/SignUp";
-import Dashboard from "pages/dashboard/Index";
-import Billing from "pages/dashboard/pages/Billing";
-import Pricing from "pages/dashboard/pages/Pricing";
-import Settings from "pages/dashboard/pages/Settings";
-import Profile from "pages/dashboard/pages/Profile";
-import NotFound from "pages/dashboard/pages/NotFound";
-import LayoutVertical from "pages/dashboard/LayoutVertical";
-import Documentation from "pages/dashboard/Documentation";
-import ChangeLog from "pages/dashboard/Changelog";
-import ApiDemo from "./pages/dashboard/pages/ApiDemo";
+import SignUp from "pages/auth/SignUp";
 
-// import bootstrap components
-import Accordion from "bootstrap-components/Accordions";
-import Alerts from "bootstrap-components/Alerts";
-import Badges from "bootstrap-components/Badges";
-import Breadcrumbs from "bootstrap-components/Breadcrumbs";
-import ButtonGroup from "bootstrap-components/ButtonGroup";
-import Buttons from "bootstrap-components/Buttons";
-import Cards from "bootstrap-components/Cards";
-import Carousels from "bootstrap-components/Carousels";
-import CloseButtons from "bootstrap-components/CloseButton";
-import Collapses from "bootstrap-components/Collapse";
-import Dropdowns from "bootstrap-components/Dropdowns";
-import Listgroups from "bootstrap-components/ListGroup";
-import Modals from "bootstrap-components/Modals";
-import Navbars from "bootstrap-components/Navbars";
-import Navs from "bootstrap-components/Navs";
-import Offcanvas from "bootstrap-components/Offcanvas";
-import Overlays from "bootstrap-components/Overlays";
-import Paginations from "bootstrap-components/Paginations";
-import Popovers from "bootstrap-components/Popovers";
-import Progress from "bootstrap-components/Progress";
-import Spinners from "bootstrap-components/Spinners";
-import Toasts from "bootstrap-components/Toasts";
-import Tooltips from "bootstrap-components/Tooltips";
-import Tables from "bootstrap-components/Tables";
+// Dashboard main pages
+const Dashboard = lazy(() => import("pages/dashboard/Index"));
+const Billing = lazy(() => import("pages/dashboard/pages/Billing"));
+const Pricing = lazy(() => import("pages/dashboard/pages/Pricing"));
+const Settings = lazy(() => import("pages/dashboard/pages/Settings"));
+const Profile = lazy(() => import("pages/dashboard/pages/Profile"));
+const NotFound = lazy(() => import("pages/dashboard/pages/NotFound"));
 
-// pages
-import Events from "pages/dashboard/pages/Events/Events";
-import Profiles from "pages/dashboard/pages/Events/Profiles";
-import Auctions from "pages/dashboard/pages/Auctions/Auctions";
-import AuctionDetails from "pages/dashboard/pages/Auctions/AuctionDetails"; // <-- NEW
-import DonationFormSettings from "pages/dashboard/pages/Support Artists/DonationFormSettings";
-import SuccessStories from "pages/dashboard/pages/Support Artists/SuccessStories";
-import HeroSection from "pages/dashboard/pages/Support Artists/HeroSection";
-import DonationManagement from "pages/dashboard/pages/Support Artists/DonationManagement";
+// Events
+const Events = lazy(() => import("pages/dashboard/pages/Events/Events"));
+const Profiles = lazy(() => import("pages/dashboard/pages/Events/Profiles"));
+
+// Auctions
+const Auctions = lazy(() => import("pages/dashboard/pages/Auctions/Auctions"));
+const AuctionDetails = lazy(() => import("pages/dashboard/pages/Auctions/AuctionDetails"));
+
+// Support Artists
+const DonationFormSettings = lazy(() =>
+  import("pages/dashboard/pages/Support Artists/DonationFormSettings")
+);
+const SuccessStories = lazy(() =>
+  import("pages/dashboard/pages/Support Artists/SuccessStories")
+);
+const HeroSection = lazy(() =>
+  import("pages/dashboard/pages/Support Artists/HeroSection")
+);
+const DonationManagement = lazy(() =>
+  import("pages/dashboard/pages/Support Artists/DonationManagement")
+);
+
 
 const App = () => {
   const router = createBrowserRouter([
@@ -60,84 +48,147 @@ const App = () => {
       id: "root",
       path: "/",
       Component: RootLayout,
-      errorElement: <NotFound />,
+      errorElement: (
+        <Suspense fallback={<div>Loading...</div>}>
+          <NotFound />
+        </Suspense>
+      ),
       children: [
         {
           id: "dashboard",
           path: "/",
-          Component: Dashboard,
+          Component: () => (
+            <Suspense fallback={<div>Loading...</div>}>
+              <Dashboard />
+            </Suspense>
+          ),
         },
         {
           id: "pages",
           path: "/pages",
           children: [
-            { path: "profile", Component: Profile },
-            { path: "settings", Component: Settings },
-            { path: "billing", Component: Billing },
-            { path: "pricing", Component: Pricing },
+            {
+              path: "profile",
+              Component: () => (
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Profile />
+                </Suspense>
+              ),
+            },
+            {
+              path: "settings",
+              Component: () => (
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Settings />
+                </Suspense>
+              ),
+            },
+            {
+              path: "billing",
+              Component: () => (
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Billing />
+                </Suspense>
+              ),
+            },
+            {
+              path: "pricing",
+              Component: () => (
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Pricing />
+                </Suspense>
+              ),
+            },
+
+            // Events
             {
               path: "events",
               children: [
-                { path: "", Component: Events },
-                { path: "profiles", Component: Profiles },
+                {
+                  path: "",
+                  Component: () => (
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <Events />
+                    </Suspense>
+                  ),
+                },
+                {
+                  path: "profiles",
+                  Component: () => (
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <Profiles />
+                    </Suspense>
+                  ),
+                },
               ],
             },
-            // ===== Auctions group =====
+
+            // Auctions
             {
               path: "auctions",
               children: [
-                { path: "", Component: Auctions },           // /pages/auctions
-                { path: ":id", Component: AuctionDetails },   // /pages/auctions/:id  <-- NEW
+                {
+                  path: "",
+                  Component: () => (
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <Auctions />
+                    </Suspense>
+                  ),
+                },
+                {
+                  path: ":id",
+                  Component: () => (
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <AuctionDetails />
+                    </Suspense>
+                  ),
+                },
               ],
             },
+
+            // Support Artists
             {
               path: "support-artists",
               children: [
-                { path: "donation-management", Component: DonationManagement },
-                { path: "hero-section", Component: HeroSection },
-                { path: "success-stories", Component: SuccessStories },
-                { path: "donation-form-settings", Component: DonationFormSettings },
+                {
+                  path: "donation-management",
+                  Component: () => (
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <DonationManagement />
+                    </Suspense>
+                  ),
+                },
+                {
+                  path: "hero-section",
+                  Component: () => (
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <HeroSection />
+                    </Suspense>
+                  ),
+                },
+                {
+                  path: "success-stories",
+                  Component: () => (
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <SuccessStories />
+                    </Suspense>
+                  ),
+                },
+                {
+                  path: "donation-form-settings",
+                  Component: () => (
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <DonationFormSettings />
+                    </Suspense>
+                  ),
+                },
               ],
             },
-            // ==========================
-            { path: "api-demo", Component: ApiDemo },
-          ],
-        },
-        { id: "documentation", path: "/documentation", Component: Documentation },
-        { id: "changelog", path: "/changelog", Component: ChangeLog },
-        { id: "layout-vertical", path: "/layout-vertical", Component: LayoutVertical },
-        {
-          id: "components",
-          path: "/components",
-          children: [
-            { path: "accordions", Component: Accordion },
-            { path: "alerts", Component: Alerts },
-            { path: "badges", Component: Badges },
-            { path: "breadcrumbs", Component: Breadcrumbs },
-            { path: "button-group", Component: ButtonGroup },
-            { path: "buttons", Component: Buttons },
-            { path: "cards", Component: Cards },
-            { path: "carousels", Component: Carousels },
-            { path: "close-button", Component: CloseButtons },
-            { path: "collapse", Component: Collapses },
-            { path: "dropdowns", Component: Dropdowns },
-            { path: "list-group", Component: Listgroups },
-            { path: "modal", Component: Modals },
-            { path: "navbar", Component: Navbars },
-            { path: "navs", Component: Navs },
-            { path: "offcanvas", Component: Offcanvas },
-            { path: "overlays", Component: Overlays },
-            { path: "pagination", Component: Paginations },
-            { path: "popovers", Component: Popovers },
-            { path: "progress", Component: Progress },
-            { path: "spinners", Component: Spinners },
-            { path: "tables", Component: Tables },
-            { path: "toasts", Component: Toasts },
-            { path: "tooltips", Component: Tooltips },
           ],
         },
       ],
     },
+
     {
       id: "auth",
       path: "/auth",

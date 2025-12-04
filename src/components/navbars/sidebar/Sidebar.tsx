@@ -15,6 +15,8 @@ import SimpleBar from "simplebar-react";
 import { DashboardMenu } from "routes/DashboardRoutes";
 import { DashboardMenuProps } from "types";
 
+import logo from "assets/images/ArtFeat_logo.jpeg";
+
 interface SidebarProps {
   showMenu: boolean;
   toggleMenu: () => void;
@@ -48,11 +50,24 @@ const Sidebar: React.FC<SidebarProps> = ({ showMenu, toggleMenu }) => {
   return (
     <Fragment>
       <SimpleBar style={{ maxHeight: "100vh" }}>
-        <div className="nav-scroller">
-          <Link to="/" className="navbar-brand">
-            <Image src="/images/brand/logo/logo.svg" alt="" />
+        <div className="px-3 py-3">
+          <Link to="/" className="navbar-brand d-flex align-items-center">
+            <Image
+              src={logo}
+              alt="ArtFeat Logo"
+              style={{
+                width: "100%",
+                maxWidth: "200px",
+                height: "auto",
+                objectFit: "contain",
+                display: "block",
+                borderRadius: "14px",
+              }}
+              fluid
+            />
           </Link>
         </div>
+
         {/* Dashboard Menu */}
         <Accordion
           defaultActiveKey="0"
@@ -116,7 +131,10 @@ const Sidebar: React.FC<SidebarProps> = ({ showMenu, toggleMenu }) => {
                                   // defaultActiveKey="0"
                                   className="navbar-nav flex-column"
                                 >
-                                  <CustomToggleLevelTwo eventKey={childKey} icon={menuLevel1Item.icon}>
+                                  <CustomToggleLevelTwo
+                                    eventKey={childKey}
+                                    icon={menuLevel1Item.icon}
+                                  >
                                     {menuLevel1Item.title}
                                     {menuLevel1Item.badge ? (
                                       <Badge
